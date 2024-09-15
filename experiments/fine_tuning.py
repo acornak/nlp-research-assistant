@@ -9,6 +9,12 @@ import nltk
 from langchain_community.document_loaders import UnstructuredPDFLoader
 from sentence_transformers import SentenceTransformer, InputExample, losses
 
+import mlflow
+from sklearn.metrics.pairwise import cosine_similarity
+
+import time
+import numpy as np
+
 from torch.utils.data import DataLoader
 
 from datasets import Dataset  # noqa: F401
@@ -74,6 +80,18 @@ class SentenceTransformerFineTuning:
 
         return train_examples
 
+    def _calculate_metrics(self, embeddings: np.array) -> float:
+        """
+        Calculate the metrics for the embeddings.
+
+        Args:
+            embeddings (np.array): The embeddings.
+        """
+        cosine_sim = cosine_similarity(embeddings)
+        avg_cosine_sim = np.mean(cosine_sim)
+
+        return avg_cosine_sim
+
     def fine_tune(self, output_path: str, epochs: int, batch_size: int) -> None:
         """
         Fine-tune the Sentence Transformer model.
@@ -83,23 +101,47 @@ class SentenceTransformerFineTuning:
             epochs (int): The number of epochs to train.
             batch_size (int): The batch size for training.
         """
-        self._load_data()
-        self._create_sentence_pairs()
-        train_examples = self._prepare_training_data()
+        with mlflow.start_run():
+            mlflow.log_param("epochs", epochs)
+            mlflow.log_param("batch_size", batch_size)
 
-        train_dataloader = DataLoader(
-            train_examples, shuffle=True, batch_size=batch_size
-        )
+            self._load_data()
+            self._create_sentence_pairs()
+            train_examples = self._prepare_training_data()
 
-        train_loss = losses.MultipleNegativesRankingLoss(
-            self.model
-        )  # unsupervised loss function
+            train_dataloader = DataLoader(
+                train_examples, shuffle=True, batch_size=batch_size
+            )
 
-        self.model.fit(
-            train_objectives=[(train_dataloader, train_loss)],
-            epochs=epochs,
-            output_path=output_path,
-        )
+            train_loss = losses.MultipleNegativesRankingLoss(
+                self.model
+            )  # unsupervised loss function
+
+            self.model.fit(
+                train_objectives=[(train_dataloader, train_loss)],
+                epochs=epochs,
+                output_path=output_path,
+            )
+
+            embeddings = self.model.encode(
+                [
+                    f"{sentence1} {sentence2}"
+                    for sentence1, sentence2 in self.sentence_pairs
+                ]
+            )
+
+            avg_cosine_sim = self._calculate_metrics(embeddings)
+
+            mlflow.log_metric("avg_cosine_sim", avg_cosine_sim)
+
+            mlflow.log_artifact(output_path)
+
+            mlflow.pytorch.log_model(self.model, "model")
+
+            start_time = time.time()
+            _ = self.model.encode(self.sentences)
+            inference_time = time.time() - start_time
+            mlflow.log_metric("inference_time", inference_time)
 
 
 if __name__ == "__main__":

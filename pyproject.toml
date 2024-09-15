@@ -15,6 +15,7 @@ langchain-community = "^0.3.0"
 chromadb = ">=0.4.0,<0.5.4"
 unstructured = { extras = ["pdf"], version = "^0.15.12" }
 langchain-huggingface = "^0.1.0"
+mlflow = "^2.16.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"

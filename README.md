@@ -12,3 +12,4 @@ Alternatively, it could be trained on the [CORD-19 dataset](https://www.semantic
 ## Sources
 - [Fine-tuning Sentence Transformer (before v3.0)](https://huggingface.co/blog/how-to-train-sentence-transformers)
 - [Fine-tuning Sentence Transformer (v3.0)](https://huggingface.co/blog/train-sentence-transformers)
+- [Understanding Cosine Similarity and Word Embeddings](https://spencerporter2.medium.com/understanding-cosine-similarity-and-word-embeddings-dbf19362a3c)

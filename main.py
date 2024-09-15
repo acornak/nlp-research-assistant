@@ -4,6 +4,7 @@ Main script to run the application. It checks if the necessary data is available
 
 import os
 import logging
+import uvicorn
 
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -83,4 +84,4 @@ if __name__ == "__main__":
         visualizer_fine_tuned.visualize(fine_tuned_path)
 
     logging.info("All data prepared. Starting the server.")
-    os.system("uvicorn app.api:app --reload")
+    uvicorn.run("app.api:app", host="0.0.0.0", port=8000)

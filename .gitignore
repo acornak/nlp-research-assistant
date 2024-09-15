@@ -167,3 +167,5 @@ cython_debug/
 **/chroma-fine-tuned
 **/checkpoints
 **/experiments/fine-tuned-model
+**/experiments/plots
+**/mlruns
