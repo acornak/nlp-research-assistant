@@ -1,0 +1,6 @@
+outs:
+- md5: e519a2049e4a8d7f239b30fa98ea1e1d.dir
+  size: 91825314
+  nfiles: 11
+  hash: md5
+  path: fine-tuned-model

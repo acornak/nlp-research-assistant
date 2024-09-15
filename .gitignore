@@ -166,3 +166,4 @@ cython_debug/
 **/chroma
 **/chroma-fine-tuned
 **/checkpoints
+**/experiments/fine-tuned-model
