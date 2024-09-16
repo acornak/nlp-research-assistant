@@ -89,7 +89,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 class QueryRequest(BaseModel):
     query: str
 
@@ -98,7 +97,6 @@ class QueryResponseItem(BaseModel):
     page_content: str
     similarity: float
     source: str
-
 
 class QueryResponse(BaseModel):
     responses: list[QueryResponseItem]
@@ -148,6 +146,8 @@ async def search_fine_tuned(request: QueryRequest) -> QueryResponse:
 
 class ChatResponse(BaseModel):
     answer: str
+    similarity: float
+    source: str
 
 
 @app.post("/chat")
@@ -155,9 +155,9 @@ async def chat(request: QueryRequest) -> ChatResponse:
     """
     Ask the model a question.
     """
-    response = qa_model.answer_question(request.query)
+    answer, source, score = qa_model.answer_question(request.query)
 
-    return ChatResponse(answer=response)
+    return ChatResponse(answer=answer, similarity=score, source=source)
 
 
 @app.post("/chat-fine-tuned")
@@ -165,9 +165,9 @@ async def chat_fine_tuned(request: QueryRequest) -> ChatResponse:
     """
     Ask the model a question.
     """
-    response = fine_tuned_qa_model.answer_question(request.query)
+    response, source, score = fine_tuned_qa_model.answer_question(request.query)
 
-    return ChatResponse(answer=response)
+    return ChatResponse(answer=response, similarity=score, source=source)
 
 
 @app.get("/get-image/{image_path:path}")

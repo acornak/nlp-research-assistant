@@ -33,7 +33,7 @@ class QuestionAnswering:
 
         self.min_confidence = 0.6
 
-    def answer_question(self, question: str) -> str:
+    def answer_question(self, question: str) -> tuple[str, str, float]:
         """
         Answer a question given a query.
 
@@ -49,6 +49,8 @@ class QuestionAnswering:
         )
 
         best_answer = None
+        best_source = None
+        best_similarity = 0
         best_score = 0
 
         for result in results:
@@ -58,5 +60,7 @@ class QuestionAnswering:
             if qa_result["score"] > best_score:
                 best_score = qa_result["score"]
                 best_answer = qa_result["answer"]
+                best_source = result[0].metadata.get("source", None)
+                best_similarity = result[1]
 
-        return best_answer or "No confident answer found."
+        return (best_answer, best_source, best_similarity)

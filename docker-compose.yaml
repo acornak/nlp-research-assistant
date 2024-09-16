@@ -5,7 +5,7 @@ services:
       - "8000:8000"
     environment:
       - CHROMA_PATH=chroma/
-      - CHROMA_FINE_TUNED_PATH=chroma_fine_tuned/
+      - CHROMA_FINE_TUNED_PATH=chroma-fine-tuned/
       - DATA_PATH=./data/
       - EMBEDDINGS_MODEL=sentence-transformers/all-MiniLM-L6-v2
       - EMBEDDINGS_MODEL_FINE_TUNED=./experiments/fine-tuned-model
@@ -13,8 +13,20 @@ services:
     volumes:
       - ./data:/src/data
       - ./experiments/fine-tuned-model:/src/experiments/fine-tuned-model
+      - ./experiments/plots:/src/experiments/plots
+      - ./chroma:/src/chroma
+      - ./chroma-fine-tuned:/src/chroma-fine-tuned
     depends_on:
       - mlflow
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=http://localhost:8000
+        - VITE_MLFLOW_URL=http://localhost:5001
+    ports:
+      - "3000:80"
   
   mlflow:
     image: "ghcr.io/mlflow/mlflow"

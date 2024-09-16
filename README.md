@@ -12,7 +12,6 @@ Alternatively, it could be trained on the [CORD-19 dataset](https://www.semantic
 - Or use docker compose - ```docker-compose up``` - but the training process is much slower in Docker. I suggest training the model using the first method and then mounting volume in docker-compose.yaml.
 
 
-
 ## Sources
 - [Fine-tuning Sentence Transformer (before v3.0)](https://huggingface.co/blog/how-to-train-sentence-transformers)
 - [Fine-tuning Sentence Transformer (v3.0)](https://huggingface.co/blog/train-sentence-transformers)
