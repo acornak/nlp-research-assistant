@@ -1,0 +1,27 @@
+services:
+  research-assistant:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - CHROMA_PATH=chroma/
+      - CHROMA_FINE_TUNED_PATH=chroma_fine_tuned/
+      - DATA_PATH=./data/
+      - EMBEDDINGS_MODEL=sentence-transformers/all-MiniLM-L6-v2
+      - EMBEDDINGS_MODEL_FINE_TUNED=./experiments/fine-tuned-model
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    volumes:
+      - ./data:/src/data
+      - ./experiments/fine-tuned-model:/src/experiments/fine-tuned-model
+    depends_on:
+      - mlflow
+  
+  mlflow:
+    image: "ghcr.io/mlflow/mlflow"
+    ports:
+      - "5001:5000"
+    environment:
+      - MLFLOW_TRACKING_URI=http://0.0.0.0:5000
+    volumes:
+      - ./mlruns:/mlflow/mlruns
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlflow/mlruns

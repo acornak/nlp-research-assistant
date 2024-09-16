@@ -8,6 +8,10 @@ Alternatively, it could be trained on the [CORD-19 dataset](https://www.semantic
 
 ## How to run:
 - Install the required packages using the following command - ```poetry install --no-root```
+- Run the following command to train the model, create vector store and visualisations and run the backend server - ```poetry run python main.py```
+- Or use docker compose - ```docker-compose up``` - but the training process is much slower in Docker. I suggest training the model using the first method and then mounting volume in docker-compose.yaml.
+
+
 
 ## Sources
 - [Fine-tuning Sentence Transformer (before v3.0)](https://huggingface.co/blog/how-to-train-sentence-transformers)

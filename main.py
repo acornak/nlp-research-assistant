@@ -4,6 +4,7 @@ Main script to run the application. It checks if the necessary data is available
 
 import os
 import logging
+
 import uvicorn
 
 from langchain_chroma import Chroma

@@ -40,7 +40,7 @@ class SentenceTransformerFineTuning:
         self.sentences = []
         self.sentence_pairs = []
 
-    def _load_data(self) -> None:
+    def _load_pdfs(self) -> None:
         """
         Load the pdf data.
         """
@@ -54,6 +54,11 @@ class SentenceTransformerFineTuning:
 
         except Exception as e:
             self.logger.error(f"Error loading PDFs: {e}")
+            exit(1)
+
+        if len(self.documents) == 0:
+            self.logger.error("No PDFs found in the data directory.")
+            exit(1)
 
     def _create_sentence_pairs(self) -> None:
         """
@@ -101,13 +106,19 @@ class SentenceTransformerFineTuning:
             epochs (int): The number of epochs to train.
             batch_size (int): The batch size for training.
         """
+        mlflow.set_tracking_uri(os.environ.get("MLFLOW_TRACKING_URI", "http://localhost:5000"))
+
+
         with mlflow.start_run():
             mlflow.log_param("epochs", epochs)
             mlflow.log_param("batch_size", batch_size)
 
-            self._load_data()
+            self._load_pdfs()
             self._create_sentence_pairs()
             train_examples = self._prepare_training_data()
+
+            self.logger.info("Fine-tuning model. This may take a while...")
+            self.logger.info("Visit http://localhost:5001 to view the training progress.")
 
             train_dataloader = DataLoader(
                 train_examples, shuffle=True, batch_size=batch_size
@@ -117,6 +128,7 @@ class SentenceTransformerFineTuning:
                 self.model
             )  # unsupervised loss function
 
+           
             self.model.fit(
                 train_objectives=[(train_dataloader, train_loss)],
                 epochs=epochs,
@@ -142,21 +154,3 @@ class SentenceTransformerFineTuning:
             _ = self.model.encode(self.sentences)
             inference_time = time.time() - start_time
             mlflow.log_metric("inference_time", inference_time)
-
-
-if __name__ == "__main__":
-    try:
-        data_path = os.environ["DATA_PATH"]
-        embeddings_model = os.environ["EMBEDDINGS_MODEL"]
-    except KeyError as e:
-        logging.error(f"Missing environment variable: {str(e)}")
-        exit(1)
-
-    fixture_dir = os.path.dirname(os.path.abspath(__file__))
-    output_path = os.path.join(fixture_dir, "fine-tuned-model")
-
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
-
-    fine_tuner = SentenceTransformerFineTuning(data_path, embeddings_model)
-    fine_tuner.fine_tune(output_path=output_path, epochs=3, batch_size=16)

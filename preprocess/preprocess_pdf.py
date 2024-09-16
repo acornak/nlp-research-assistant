@@ -69,6 +69,7 @@ class Preprocess:
 
         except Exception as e:
             self.logger.error(f"Error loading PDFs: {e}")
+            exit(1)
 
     def _store_chunks(self) -> Chroma:
         """
@@ -97,23 +98,3 @@ class Preprocess:
         db = self._store_chunks()
 
         return db
-
-
-if __name__ == "__main__":
-    try:
-        data_path = os.environ["DATA_PATH"]
-        chroma_path = os.environ["CHROMA_PATH"]
-        chroma_fine_tuned_path = os.environ["CHROMA_FINE_TUNED_PATH"]
-        embeddings_model = os.environ["EMBEDDINGS_MODEL"]
-        embeddings_model_fine_tuned = os.environ["EMBEDDINGS_MODEL_FINE_TUNED"]
-    except KeyError as e:
-        logging.error(f"Missing environment variable: {str(e)}")
-        exit(1)
-
-    preprocess = Preprocess(data_path, chroma_path, embeddings_model)
-    preprocess.prepare_data()
-
-    preprocess_fine_tuned = Preprocess(
-        data_path, chroma_fine_tuned_path, embeddings_model_fine_tuned
-    )
-    preprocess_fine_tuned.prepare_data()
